@@ -69,7 +69,7 @@ Mimari, kodun okunabilirliğini ve sürdürülebilirliğini sağlamak adına mod
  ┗ 📜 README.md                                # Proje dokümantasyonu
 
 
-⚙️ Kurulum ve Çalıştırma
+## ⚙️ Kurulum ve Çalıştırma
 Sistemi kendi bilgisayarınızda veya sunucunuzda çalıştırmak için aşağıdaki adımları izleyebilirsiniz.
 
 🖥️ Yöntem 1: Lokal Ortam
