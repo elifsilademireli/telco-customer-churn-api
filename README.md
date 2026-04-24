@@ -5,173 +5,65 @@
 ![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3%2B-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-Bu proje, telekomünikasyon sektöründe kritik bir iş problemi olan **müşteri kaybını (churn)** önceden tahmin etmek amacıyla geliştirilmiş uçtan uca bir veri bilimi ve yazılım mühendisliği çözümüdür.
+Bu proje, telekomünikasyon sektöründe kritik bir iş problemi olan **Müşteri Kaybını (Churn)** önceden tespit etmek amacıyla geliştirilmiş uçtan uca bir veri bilimi ve yazılım mühendisliği çözümüdür. Çalışma; veri ön işleme süreçlerinden başlayarak, makine öğrenmesi modellerinin karşılaştırılmasına ve nihayetinde şampiyon modelin **FastAPI** ile bir web servisi (API) olarak canlıya alınmasına kadar olan tüm yaşam döngüsünü kapsar.
 
-Proje kapsamında:
-- Veri ön işleme
-- Model geliştirme ve karşılaştırma
-- En iyi modelin seçilmesi
-- Modelin **FastAPI** ile servis edilmesi  
-
-gibi tüm yaşam döngüsü eksiksiz şekilde ele alınmıştır.
+Model başarıyla eğitilmiş ve şu dosyaya kaydedilmiştir: `best_churn_model.pkl`
 
 ---
 
-## 🎯 İş Problemi ve Amaç
+## 🎯 İş Problemi ve Projenin Amacı
 
-Telekom sektöründe yeni müşteri kazanmak, mevcut müşteriyi elde tutmaktan çok daha maliyetlidir.
-
-Bu projenin amacı:
-- Yüksek churn riski taşıyan müşterileri önceden tespit etmek  
-- Bu tahminleri gerçek zamanlı kullanılabilir hale getirmek  
-- CRM ve benzeri sistemlere entegre edilebilecek bir **API servisi** sunmaktır  
+Telekom şirketleri için yeni bir müşteri kazanmanın maliyeti, mevcut müşteriyi elde tutmaktan çok daha yüksektir. Bu sistemin temel amacı:
+- Şirketten ayrılma riski yüksek olan müşterileri davranışsal ve demografik verilerinden tespit etmek.
+- Bu tespitleri dış uygulamaların (CRM sistemleri, mobil uygulamalar vb.) anında kullanabileceği, ölçeklenebilir ve düşük gecikmeli bir **API servisi** üzerinden sunmaktır.
 
 ---
 
-## 📊 Veri Seti ve EDA Özeti
+## 📊 Veri Seti ve Keşifsel Analiz (EDA) Özeti
 
-Model eğitimi için **Kaggle Telco Customer Churn** veri seti kullanılmıştır.
+Modelin eğitiminde **Kaggle Telco Customer Churn** veri seti kullanılmıştır. Veri seti 7.043 müşteri ve 21 özellikten oluşmaktadır. Veriler üç ana grupta toplanır:
 
-- 👥 **Toplam müşteri:** 7,043  
-- 🔢 **Toplam özellik:** 21  
-
-### Veri Kategorileri
-
-**1. Demografik Bilgiler**
-- Cinsiyet  
-- SeniorCitizen  
-- Partner  
-- Dependents  
-
-**2. Hesap Bilgileri**
-- Tenure (müşterilik süresi)  
-- Contract (sözleşme türü)  
-- PaymentMethod  
-- MonthlyCharges  
-- TotalCharges  
-
-**3. Servis Kullanımı**
-- InternetService  
-- PhoneService  
-- OnlineSecurity  
-- TechSupport  
-- StreamingTV / Movies  
+1. **Demografik Veriler:** Cinsiyet, yaşlılık durumu, partner ve bakmakla yükümlü olunan kişi durumu.
+2. **Hesap Bilgileri:** Müşterilik süresi (tenure), sözleşme türü, ödeme yöntemi, aylık ve toplam fatura tutarları.
+3. **Servis Kullanımı:** İnternet türü, telefon servisi, teknik destek ve güvenlik paketleri abonelik durumları.
 
 ---
 
-## 🧠 Makine Öğrenmesi Pipeline Mimarisi
+## 🧠 Makine Öğrenmesi Mimarisi (Pipeline)
 
-Projede **Scikit-Learn Pipeline** kullanılarak uçtan uca bir yapı kurulmuştur.
+Projede, verinin ham halden tahmin üretecek duruma gelmesi için katı bir **Scikit-Learn Pipeline** mimarisi kurulmuştur. Bu yapı, veri sızıntısını (data leakage) engeller ve canlı ortamda (production) yüksek tutarlılık sağlar.
 
-Bu yaklaşım:
-- Veri sızıntısını (data leakage) önler  
-- Production ortamında tutarlılığı artırır  
+### 1. Veri Ön İşleme (Preprocessing) Stratejisi
+* **Veri Temizliği:** `TotalCharges` kolonunda tespit edilen görünmez boşluk karakterleri (' ') `NaN` değerlere dönüştürülmüş ve eksik veriler temizlenmiştir.
+* **Özellik Seçimi:** Modelin ezber (overfitting) yapmasını önlemek adına, hiçbir tahmin gücü olmayan `customerID` değişkeni veri setinden çıkarılmıştır.
+* **Dönüşümler (Transformations):**
+  * **Sayısal Değişkenler:** `tenure`, `MonthlyCharges` ve `TotalCharges` özellikleri `StandardScaler` ile ölçeklendirilmiştir.
+  * **Kategorik Değişkenler:** Çoklu doğrusallık (dummy variable trap) problemini önlemek adına `OneHotEncoder(drop='first')` kullanılarak makine diline çevrilmiştir.
 
----
+### 2. Model Geliştirme ve Karşılaştırma
+Sistem üç farklı algoritmayı eğitmiş ve test verisi üzerinde birbiriyle yarıştırtmıştır:
+1. `Logistic Regression`
+2. `Random Forest Classifier`
+3. `XGBoost Classifier`
 
-### 🔧 1. Veri Ön İşleme
-
-- **Veri Temizliği**
-  - `TotalCharges` içindeki boş string değerler → `NaN` olarak düzeltildi  
-
-- **Özellik Seçimi**
-  - `customerID` kaldırıldı  
-
-- **Dönüşümler**
-  - Sayısal veriler → `StandardScaler`  
-  - Kategorik veriler → `OneHotEncoder(drop='first')`  
+> **🏆 Şampiyon Model: Logistic Regression (~%80.45 Accuracy)**
+> Telekom churn verisi gibi doğrusal ilişkilerin (örneğin: sözleşme süresi arttıkça müşteri kaybı azalır) belirgin olduğu durumlarda, karmaşık ağaç algoritmaları yerine iyi ölçeklendirilmiş bir Lojistik Regresyon modelinin en iyi performansı gösterdiği tespit edilmiştir.
 
 ---
 
-### 🤖 2. Model Geliştirme
+## 📂 Proje Dizin Yapısı
 
-Aşağıdaki modeller eğitilip karşılaştırılmıştır:
+Mimari, kodun okunabilirliğini ve sürdürülebilirliğini sağlamak adına modüler olarak tasarlanmıştır:
 
-1. Logistic Regression  
-2. Random Forest  
-3. XGBoost  
-
----
-
-### 🏆 Şampiyon Model
-
-**Logistic Regression (~%80.45 Accuracy)**
-
-📌 Neden?
-- Veri setindeki ilişkiler büyük ölçüde doğrusal  
-- Daha basit model → daha iyi genelleme  
-- Overfitting riski daha düşük  
-
-Model şu dosyaya kaydedilmiştir:
-
-```bash
-best_churn_model.pkl
-📂 Proje Dizin Yapısı
+```text
 📦 Telco-Customer-Churn
-┣ 📂 data
-┃ ┗ 📜 WA_Fn-UseC_-Telco-Customer-Churn.csv
-┣ 📂 scripts
-┃ ┣ 📜 preprocess.py
-┃ ┗ 📜 evaluate.py
-┣ 📜 train.py
-┣ 📜 app.py
-┣ 📜 requirements.txt
-┣ 📜 Dockerfile
-┗ 📜 README.md
-⚙️ Kurulum ve Çalıştırma
-🖥️ Yöntem 1: Lokal Ortam
-1. Repo'yu klonla
-git clone https://github.com/elifsilademireli/telco-customer-churn-api.git
-cd telco-churn-api
-2. Bağımlılıkları yükle
-pip install -r requirements.txt
-3. (Opsiyonel) Modeli eğit
-python train.py
-4. API’yi başlat
-uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-
-Swagger UI:
-
-http://localhost:8000/docs
-🐳 Yöntem 2: Docker
-docker build -t churn-prediction-api .
-docker run -d -p 8000:8000 churn-prediction-api
-📡 API Dokümantasyonu
-🔹 Endpoint
-POST /predict
-📥 Request (JSON)
-{
-  "gender": "Female",
-  "SeniorCitizen": 0,
-  "Partner": "Yes",
-  "Dependents": "No",
-  "tenure": 24,
-  "PhoneService": "Yes",
-  "MultipleLines": "No",
-  "InternetService": "Fiber optic",
-  "OnlineSecurity": "No",
-  "OnlineBackup": "Yes",
-  "DeviceProtection": "No",
-  "TechSupport": "No",
-  "StreamingTV": "Yes",
-  "StreamingMovies": "No",
-  "Contract": "Month-to-month",
-  "PaperlessBilling": "Yes",
-  "PaymentMethod": "Electronic check",
-  "MonthlyCharges": 89.85,
-  "TotalCharges": 2156.40
-}
-📤 Response (JSON)
-{
-  "Churn": "Yes",
-  "Olasılık": "%72.14"
-}
-💡 Gelecek Geliştirmeler
-🎨 Kullanıcı Arayüzü
-Streamlit veya Gradio ile frontend geliştirme
-🔍 Model Yorumlanabilirliği (XAI)
-SHAP ile feature etkilerinin analiz edilmesi
-API response içine açıklamalar eklenmesi
-🔄 CI/CD Entegrasyonu
-GitHub Actions ile otomatik deploy
-Model güncellemelerinin otomasyonu
+ ┣ 📂 data
+ ┃ ┗ 📜 WA_Fn-UseC_-Telco-Customer-Churn.csv   # Orijinal Veri Seti
+ ┣ 📂 scripts
+ ┃ ┣ 📜 preprocess.py                          # Veri temizleme modülü
+ ┃ ┗ 📜 evaluate.py                            # Metrik ve model seçim modülü
+ ┣ 📜 train.py                                 # Pipeline orkestratörü ve eğitim scripti
+ ┣ 📜 app.py                                   # FastAPI sunucusu
+ ┣ 📜 requirements.txt                         # Bağımlılıklar
+ ┣ 📜 Dockerfile                               # Konteyner imaj dosyası
+ ┗ 📜 README.md                                # Proje dokümantasyonu
