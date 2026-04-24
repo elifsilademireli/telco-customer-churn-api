@@ -67,3 +67,77 @@ Mimari, kodun okunabilirliğini ve sürdürülebilirliğini sağlamak adına mod
  ┣ 📜 requirements.txt                         # Bağımlılıklar
  ┣ 📜 Dockerfile                               # Konteyner imaj dosyası
  ┗ 📜 README.md                                # Proje dokümantasyonu
+
+
+⚙️ Kurulum ve Çalıştırma
+Sistemi kendi bilgisayarınızda veya sunucunuzda çalıştırmak için aşağıdaki adımları izleyebilirsiniz.
+
+🖥️ Yöntem 1: Lokal Ortam
+1. Repo'yu klonla:
+
+Bash
+git clone [https://github.com/elifsilademireli/telco-customer-churn-api.git](https://github.com/elifsilademireli/telco-customer-churn-api.git)
+cd telco-churn-api
+2. Bağımlılıkları yükle:
+
+Bash
+pip install -r requirements.txt
+3. (Opsiyonel) Modeli eğit:
+
+Bash
+python train.py
+4. API'yi başlat:
+
+Bash
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+Swagger UI: API'yi interaktif olarak test etmek için tarayıcınızdan http://localhost:8000/docs adresine gidebilirsiniz.
+
+🐳 Yöntem 2: Docker
+Projeyi kendi ortam değişkenlerinizden bağımsız, izole bir şekilde çalıştırmak isterseniz:
+
+Bash
+docker build -t churn-prediction-api .
+docker run -d -p 8000:8000 churn-prediction-api
+📡 API Dokümantasyonu
+API, POST metoduyla çalışan ve Pydantic ile sıkı veri doğrulaması (data validation) yapan bir uç noktaya sahiptir.
+
+🔹 Endpoint: POST /predict
+
+📥 Request (JSON)
+Müşteri özelliklerini alır ve makine öğrenmesi modeli üzerinden churn (kayıp) tahminini olasılık değeriyle birlikte döner.
+
+JSON
+{
+  "gender": "Female",
+  "SeniorCitizen": 0,
+  "Partner": "Yes",
+  "Dependents": "No",
+  "tenure": 24,
+  "PhoneService": "Yes",
+  "MultipleLines": "No",
+  "InternetService": "Fiber optic",
+  "OnlineSecurity": "No",
+  "OnlineBackup": "Yes",
+  "DeviceProtection": "No",
+  "TechSupport": "No",
+  "StreamingTV": "Yes",
+  "StreamingMovies": "No",
+  "Contract": "Month-to-month",
+  "PaperlessBilling": "Yes",
+  "PaymentMethod": "Electronic check",
+  "MonthlyCharges": 89.85,
+  "TotalCharges": 2156.40
+}
+📤 Response (JSON)
+
+JSON
+{
+  "Churn": "Yes",
+  "Olasılık": "%72.14"
+}
+💡 Gelecek Geliştirmeler
+🎨 Kullanıcı Arayüzü: Streamlit veya Gradio ile son kullanıcıya (kod bilmeyen yöneticilere) hitap eden frontend geliştirilmesi.
+
+🔍 Model Yorumlanabilirliği (XAI): SHAP (SHapley Additive exPlanations) ile özellik (feature) etkilerinin analiz edilmesi ve API response içerisine tahminin nedenlerine dair açıklamalar eklenmesi.
+
+🔄 CI/CD Entegrasyonu: GitHub Actions ile otomatik dağıtım (deploy) süreçlerinin ve model güncellemelerinin otomatikleştirilmesi.
