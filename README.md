@@ -69,6 +69,76 @@ Mimari, kodun okunabilirliğini ve sürdürülebilirliğini sağlamak adına mod
  ┗ 📜 README.md                                # Proje dokümantasyonu
 
 
+
+
+
+## 📊 Model Performans Karşılaştırması
+
+Model seçimi **Doğruluk Skoru (Accuracy)** metriğine göre yapılmıştır. Yapılan testler sonucunda en yüksek skora ulaşan model şampiyon olarak belirlenmiş ve API'ye entegre edilmiştir.
+
+| Model | Doğruluk Skoru (Accuracy) |
+| :--- | :--- |
+| 🏆 **Logistic Regression** | **0.8045** |
+| Random Forest | 0.7839 |
+| XGBoost | 0.7783 |
+
+<details>
+<summary><b>1. Logistic Regression Sonuçları (Detayları Görmek İçin Tıklayın)</b></summary>
+
+```text
+Doğruluk Skoru (Accuracy) : 0.8045
+
+              precision    recall  f1-score   support
+
+           0       0.85      0.89      0.87      1033
+           1       0.65      0.57      0.61       374
+
+    accuracy                           0.80      1407
+   macro avg       0.75      0.73      0.74      1407
+weighted avg       0.80      0.80      0.80      1407
+
+
+
+### Diğer Modellerin Detaylı Sonuçları
+
+```text
+--------------- Random Forest Sonuçları ---------------
+Doğruluk Skoru (Accuracy) : 0.7839
+Detaylı Sınıflandırma Raporu:
+              precision    recall  f1-score   support
+
+           0       0.83      0.89      0.86      1033
+           1       0.62      0.49      0.54       374
+
+    accuracy                           0.78      1407
+   macro avg       0.72      0.69      0.70      1407
+weighted avg       0.77      0.78      0.78      1407
+
+
+--------------- XGBoost Sonuçları ---------------
+Doğruluk Skoru (Accuracy) : 0.7783
+Detaylı Sınıflandırma Raporu:
+              precision    recall  f1-score   support
+
+           0       0.84      0.86      0.85      1033
+           1       0.59      0.55      0.57       374
+
+    accuracy                           0.78      1407
+   macro avg       0.72      0.70      0.71      1407
+weighted avg       0.77      0.78      0.78      1407
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## ⚙️ Kurulum ve Çalıştırma
 Sistemi kendi bilgisayarınızda veya sunucunuzda çalıştırmak için aşağıdaki adımları izleyebilirsiniz.
 
