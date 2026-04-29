@@ -85,7 +85,7 @@ Model seçimi **Doğruluk Skoru (Accuracy)** metriğine göre yapılmıştır. Y
 <details>
 <summary><b>1. Logistic Regression Sonuçları (Detayları Görmek İçin Tıklayın)</b></summary>
 
-```text
+
 Doğruluk Skoru (Accuracy) : 0.8045
 
               precision    recall  f1-score   support
@@ -98,8 +98,6 @@ Doğruluk Skoru (Accuracy) : 0.8045
 weighted avg       0.80      0.80      0.80      1407
 
 
-
-### Diğer Modellerin Detaylı Sonuçları
 
 ```text
 --------------- Random Forest Sonuçları ---------------
